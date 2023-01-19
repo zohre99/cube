@@ -9,5 +9,5 @@ public class ProductResponse {
     private String name;
     private String color;
     private String description;
-    private String stock;
+    private Long stock;
 }

@@ -3,8 +3,9 @@ package com.rubic.cube.controller;
 import com.rubic.cube.controller.mapper.ProductMapper;
 import com.rubic.cube.controller.model.request.CreateProductRequest;
 import com.rubic.cube.controller.model.request.UpdateProductRequest;
-import com.rubic.cube.controller.model.response.IdResponseModel;
+import com.rubic.cube.controller.model.response.IdModelResponse;
 import com.rubic.cube.controller.model.response.ProductResponse;
+import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
 import com.rubic.cube.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
     public static final String PRODUCT_CONTROLLER_ADDRESS = "/products";
+    public static final String STOCK_URL = "/stock";
 
     private final ProductService productService;
 
@@ -30,11 +32,11 @@ public class ProductController {
         return productMapper.productToProductResponse(product);
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/by-code/{code}")
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> findAllByCode(@PathVariable("code") String code,
                                                @RequestParam("page") int page,
-                                               @RequestParam("limit") int size) {
+                                               @RequestParam("size") int size) {
         List<Product> productList = productService.findAllByCode(code, page, size);
         return productMapper.productListToProductResponseList(productList);
     }
@@ -42,25 +44,30 @@ public class ProductController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> findAll(@RequestParam("page") int page,
-                                         @RequestParam("limit") int size) {
+                                         @RequestParam("size") int size) {
         List<Product> productList = productService.findAll(page, size);
         return productMapper.productListToProductResponseList(productList);
     }
 
+    @GetMapping(STOCK_URL + "/{code}")
+    public List<ProductStockByColorResponse> findProductStock(@PathVariable("code") String code) {
+        return productService.findStockByCode(code);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public IdResponseModel create(@RequestBody CreateProductRequest createProductRequest) {
+    public IdModelResponse create(@RequestBody CreateProductRequest createProductRequest) {
         Product product = productMapper.createProductRequestToProduct(createProductRequest);
         Long id = productService.create(product);
-        return new IdResponseModel(id);
+        return new IdModelResponse(id);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public IdResponseModel update(@RequestBody UpdateProductRequest updateProductRequest) {
+    public IdModelResponse update(@RequestBody UpdateProductRequest updateProductRequest) {
         Product newProduct = productMapper.updateProductRequestToProduct(updateProductRequest);
         Long id = productService.update(newProduct);
-        return new IdResponseModel(id);
+        return new IdModelResponse(id);
     }
 
     @DeleteMapping("/{id}")

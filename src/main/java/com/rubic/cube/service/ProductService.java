@@ -1,5 +1,6 @@
 package com.rubic.cube.service;
 
+import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
 import com.rubic.cube.exception.ProductException;
 import com.rubic.cube.repository.ProductRepository;
@@ -32,6 +33,10 @@ public class ProductService {
     public List<Product> findAll(int page, int size) {
         return productRepository.findAll(Pageable.ofSize(size).withPage(page))
                 .toList();
+    }
+
+    public List<ProductStockByColorResponse> findStockByCode(String code) {
+        return productRepository.findStockByCode(code);
     }
 
     public Long create(Product product) {

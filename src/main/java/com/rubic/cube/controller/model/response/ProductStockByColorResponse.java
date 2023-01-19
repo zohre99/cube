@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class IdResponseModel {
-    private Long id;
+public class ProductStockByColorResponse {
+    private String color;
+    private Long stock;
 }
