@@ -7,7 +7,7 @@ import java.util.Date;
 
 @AllArgsConstructor
 @Data
-public class ProductExceptionModel {
+public class BusinessCodeExceptionModel {
 
     private int status;
     private Date timestamp;

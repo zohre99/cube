@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Date;
 
 @ControllerAdvice
-public class ProductExceptionHandler {
+public class CubeExceptionHandler {
 
-    @ExceptionHandler(ProductException.class)
-    public ResponseEntity<ProductExceptionModel> handleException(ProductException productException) {
-        ProductExceptionModel exceptionModel = new ProductExceptionModel(
+    @ExceptionHandler(BusinessCodeException.class)
+    public ResponseEntity<BusinessCodeExceptionModel> handleException(BusinessCodeException productException) {
+        BusinessCodeExceptionModel exceptionModel = new BusinessCodeExceptionModel(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
                 productException.getExceptionCode(),

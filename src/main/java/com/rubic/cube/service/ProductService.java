@@ -2,7 +2,7 @@ package com.rubic.cube.service;
 
 import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
-import com.rubic.cube.exception.ProductException;
+import com.rubic.cube.exception.BusinessCodeException;
 import com.rubic.cube.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,7 @@ public class ProductService {
 
     public Product findById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG));
+                .orElseThrow(() -> new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG));
     }
 
     public List<Product> findAllByCode(String code, int page, int size) {
@@ -47,7 +47,7 @@ public class ProductService {
     public Long update(Product newProduct) {
         Optional<Product> oldProduct = productRepository.findById(newProduct.getId());
         if (!oldProduct.isPresent()) {
-            throw new ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
+            throw new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
         }
         Product product = oldProduct.get();
 
@@ -72,7 +72,7 @@ public class ProductService {
     public void deleteById(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (!product.isPresent()) {
-            throw new ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
+            throw new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
         }
         productRepository.deleteById(id);
     }

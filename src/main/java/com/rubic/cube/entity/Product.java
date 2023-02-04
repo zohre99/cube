@@ -1,19 +1,16 @@
 package com.rubic.cube.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Table(name = "PRODUCT")
 @Entity
 @Data
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
-    @SequenceGenerator(name = "SEQ_PRODUCT", sequenceName = "SEQ_PRODUCT")
+    @SequenceGenerator(name = "SEQ_PRODUCT", sequenceName = "SEQ_PRODUCT", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PRODUCT")
     private Long id;
 
@@ -30,14 +27,6 @@ public class Product {
     private String description;
 
     @Column(name = "STOCK", nullable = false)
-    private Long stock;
-
-    @Column(name = "CREATED_DATE", updatable = false)
-    @CreationTimestamp
-    private Date createdDate;
-
-    @Column(name = "LAST_MODIFIED_DATE")
-    @UpdateTimestamp
-    private Date lastModifiedDate;
+    private Integer stock;
 
 }

@@ -1,16 +1,11 @@
 package com.rubic.cube.exception;
 
-public class ProductException extends RuntimeException {
-
+public class BusinessCodeException extends RuntimeException {
     private String exceptionCode;
 
-    public ProductException(String exceptionCode, String message) {
+    public BusinessCodeException(String exceptionCode, String message) {
         super(message);
         this.exceptionCode = exceptionCode;
-    }
-
-    public ProductException() {
-
     }
 
     public String getExceptionCode() {
