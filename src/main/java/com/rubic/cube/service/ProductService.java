@@ -77,4 +77,17 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional
+    public void reduceStockByOne(Product product) {
+        product.setStock(product.getStock() - 1);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void increaseStockByOne(Product product) {
+        product.setStock(product.getStock() + 1);
+        productRepository.save(product);
+    }
+
+
 }

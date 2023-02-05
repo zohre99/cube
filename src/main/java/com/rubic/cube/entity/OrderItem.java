@@ -15,11 +15,14 @@ public class OrderItem extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID", nullable = false, updatable = false)
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "CART_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "CART_ID", referencedColumnName = "ID", nullable = false, updatable = false)
     private Cart cart;
+
+    @Column(name = "ORDER_COUNT", nullable = false, columnDefinition = "integer default 0")
+    private Integer count;
 
 }

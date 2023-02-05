@@ -38,6 +38,11 @@ public class UserService {
                 .orElseThrow(() -> new BusinessCodeException(USER_NOT_FOUND, USER_NOT_FOUND_MSG));
     }
 
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BusinessCodeException(USER_NOT_FOUND, USER_NOT_FOUND_MSG));
+    }
+
     @Transactional
     public void deleteByUsername(String username) throws BusinessCodeException {
         Optional<User> user = userRepository.findByUsername(username);

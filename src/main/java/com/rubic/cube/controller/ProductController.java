@@ -23,10 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
     public static final String PRODUCT_CONTROLLER_ADDRESS = "/products";
+
     public static final String STOCK_URL = "/stock";
-
     private final ProductService productService;
-
     private final ProductMapper productMapper;
 
     @GetMapping("/{id}")
@@ -111,5 +110,6 @@ public class ProductController {
     public void deleteById(@PathVariable("id") Long id) {
         productService.deleteById(id);
     }
+
 
 }
