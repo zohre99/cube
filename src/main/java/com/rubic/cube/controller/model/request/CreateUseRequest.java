@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @ApiModel(value = "CreateUserModel", description = "It defines user information.")
-public class CreateUserModel {
+public class CreateUseRequest {
 
     @Schema(description = "username", example = "j.doe")
     @NotBlank(message = "username cannot be empty")

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @ApiModel(value = "UpdateUserModel", description = "It contains user first name and last name.")
-public class UpdateUserModel {
+public class UpdateUserRequest {
 
     @Schema(description = "first name", example = "John")
     private String firstName;

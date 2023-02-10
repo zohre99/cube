@@ -4,7 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Table(name = "ORDER_ITEM")
+@Table(name = "ORDER_ITEM", uniqueConstraints = @UniqueConstraint(columnNames = {"PRODUCT_ID", "CART_ID"}))
 @Entity
 @Data
 public class OrderItem extends BaseEntity {

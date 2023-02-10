@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @ApiModel(value = "UpdatePasswordModel", description = "It specifies current and new password.")
-public class UpdatePasswordModel {
+public class UpdatePasswordRequest {
 
     @Schema(description = "current password", example = "0a92d#b134")
     @NotBlank(message = "current password cannot be empty")

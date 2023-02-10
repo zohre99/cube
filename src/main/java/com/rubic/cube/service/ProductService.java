@@ -2,9 +2,12 @@ package com.rubic.cube.service;
 
 import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
+import com.rubic.cube.entity.User;
 import com.rubic.cube.exception.BusinessCodeException;
+import com.rubic.cube.exception.ExceptionMessage;
 import com.rubic.cube.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,27 +15,34 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.rubic.cube.exception.ExceptionMessage.PRODUCT_NOT_FOUND;
-import static com.rubic.cube.exception.ExceptionMessage.PRODUCT_NOT_FOUND_MSG;
+import static com.rubic.cube.exception.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final OrderItemService orderItemService;
+    private final UserService userService;
 
     public Product findById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG));
     }
 
-    public List<Product> findAllByCode(String code, int page, int size) {
-        return productRepository.findAllByCode(code, Pageable.ofSize(size).withPage(page))
-                .toList();
+    public Page<Product> findAllByCode(String code, int page, int size) {
+        return productRepository.findAllByCode(code, Pageable.ofSize(size).withPage(page));
     }
 
-    public List<Product> findAll(int page, int size) {
-        return productRepository.findAll(Pageable.ofSize(size).withPage(page))
-                .toList();
+    public Long countByCode(String code) {
+        return productRepository.countByCode(code);
+    }
+
+    public Page<Product> findAll(int page, int size) {
+        return productRepository.findAll(Pageable.ofSize(size).withPage(page));
+    }
+
+    public Long countAll() {
+        return productRepository.count();
     }
 
     public List<ProductStockByColorResponse> findStockByCode(String code) {
@@ -40,6 +50,11 @@ public class ProductService {
     }
 
     public Long create(Product product) {
+        Optional<Product> optionalProduct = productRepository.findByCodeAndNameAndColor(product.getCode(),
+                product.getName(), product.getColor());
+        if (optionalProduct.isPresent()) {
+            throw new BusinessCodeException(PRODUCT_ALREADY_EXISTS, PRODUCT_ALREADY_EXISTS_MSG);
+        }
         return productRepository.save(product).getId();
     }
 
@@ -50,6 +65,12 @@ public class ProductService {
             throw new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
         }
         Product product = oldProduct.get();
+
+        Optional<Product> optionalSimilarProduct = productRepository.findByCodeAndNameAndColor(product.getCode(),
+                newProduct.getName(), newProduct.getColor());
+        if (optionalSimilarProduct.isPresent()) {
+            throw new BusinessCodeException(PRODUCT_CONFLICT, PRODUCT_CONFLICT_MSG);
+        }
 
         if (newProduct.getName() != null) {
             product.setName(newProduct.getName());
@@ -78,16 +99,33 @@ public class ProductService {
     }
 
     @Transactional
-    public void reduceStockByOne(Product product) {
-        product.setStock(product.getStock() - 1);
-        productRepository.save(product);
+    public Long order(Long productId, Long userId) {
+        Product product = findById(productId);
+        User user = userService.findById(userId);
+
+        if (product.getStock() < 1) {
+            throw new BusinessCodeException(ExceptionMessage.SOLED_OUT, ExceptionMessage.SOLED_OUT_MSG);
+        }
+
+        synchronized (product) {
+            Long orderId = orderItemService.orderProduct(product, user);
+            product.setStock(product.getStock() - 1);
+            productRepository.save(product);
+            return orderId;
+        }
     }
 
     @Transactional
-    public void increaseStockByOne(Product product) {
-        product.setStock(product.getStock() + 1);
-        productRepository.save(product);
-    }
+    public void reduceOrderByOne(Long productId, Long userId) {
+        Product product = findById(productId);
+        User user = userService.findById(userId);
 
+        orderItemService.reduceOrderCountByOne(product, user);
+
+        synchronized (product) {
+            product.setStock(product.getStock() + 1);
+            productRepository.save(product);
+        }
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.rubic.cube.service;
 
-import com.rubic.cube.controller.model.request.UpdatePasswordModel;
-import com.rubic.cube.controller.model.request.UpdateUserModel;
+import com.rubic.cube.controller.model.request.UpdatePasswordRequest;
+import com.rubic.cube.controller.model.request.UpdateUserRequest;
 import com.rubic.cube.entity.User;
 import com.rubic.cube.exception.BusinessCodeException;
 import com.rubic.cube.repository.UserRepository;
@@ -62,14 +62,14 @@ public class UserService {
     }
 
     @Transactional
-    public Long updateByUsername(String username, UpdateUserModel updateUserModel) throws BusinessCodeException {
+    public Long updateByUsername(String username, UpdateUserRequest updateUserRequest) throws BusinessCodeException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessCodeException(USER_NOT_FOUND, USER_NOT_FOUND_MSG));
-        if (StringUtils.hasText(updateUserModel.getFirstName())) {
-            user.setFirstName(updateUserModel.getFirstName());
+        if (StringUtils.hasText(updateUserRequest.getFirstName())) {
+            user.setFirstName(updateUserRequest.getFirstName());
         }
-        if (StringUtils.hasText(updateUserModel.getLastName())) {
-            user.setLastName(updateUserModel.getLastName());
+        if (StringUtils.hasText(updateUserRequest.getLastName())) {
+            user.setLastName(updateUserRequest.getLastName());
         }
 
         userRepository.save(user);
@@ -82,11 +82,11 @@ public class UserService {
         return users.toList();
     }
 
-    public void updatePassword(String username, UpdatePasswordModel updatePasswordModel) throws BusinessCodeException {
+    public void updatePassword(String username, UpdatePasswordRequest updatePasswordRequest) throws BusinessCodeException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessCodeException(USER_NOT_FOUND, USER_NOT_FOUND_MSG));
-        if (user.getPassword().equals(updatePasswordModel.getCurrentPassword())) {
-            user.setPassword(updatePasswordModel.getNewPassword());
+        if (user.getPassword().equals(updatePasswordRequest.getCurrentPassword())) {
+            user.setPassword(updatePasswordRequest.getNewPassword());
             userRepository.save(user);
         } else {
             throw new BusinessCodeException(INCORRECT_PASSWORD, INCORRECT_PASSWORD_MSG);

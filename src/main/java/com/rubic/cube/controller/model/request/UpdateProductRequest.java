@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class UpdateProductRequest {
 
     @Schema(description = "Product id", example = "1")
-    @NotNull
+    @NotNull(message = "product id cannot be null.")
     private String id;
 
     @Schema(description = "Product name", example = "Sweater")

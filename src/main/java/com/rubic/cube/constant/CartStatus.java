@@ -1,11 +1,11 @@
 package com.rubic.cube.constant;
 
 public enum CartStatus {
-    IN_PROGRESS("In Progress"),
-    FINAL("FINAL");
+    PROGRESSING("PROGRESSING"),
+    SUBMITTED("SUBMITTED");
     private final String value;
 
-    private CartStatus(String value) {
+    CartStatus(String value) {
         this.value = value;
     }
 

@@ -1,9 +1,9 @@
 package com.rubic.cube.controller;
 
 import com.rubic.cube.controller.mapper.UserMapper;
-import com.rubic.cube.controller.model.request.CreateUserModel;
-import com.rubic.cube.controller.model.request.UpdatePasswordModel;
-import com.rubic.cube.controller.model.request.UpdateUserModel;
+import com.rubic.cube.controller.model.request.CreateUseRequest;
+import com.rubic.cube.controller.model.request.UpdatePasswordRequest;
+import com.rubic.cube.controller.model.request.UpdateUserRequest;
 import com.rubic.cube.controller.model.response.IdModelResponse;
 import com.rubic.cube.controller.model.response.UserResponse;
 import com.rubic.cube.entity.User;
@@ -37,8 +37,8 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = ExceptionMessage.USERNAME_IS_ALREADY_EXISTS_MSG)
     })
     public IdModelResponse create(@Parameter(description = "User information.")
-                                  @RequestBody @Valid CreateUserModel createUserModel) {
-        User user = userMapper.createUserModelToUser(createUserModel);
+                                  @RequestBody @Valid CreateUseRequest createUseRequest) {
+        User user = userMapper.createUserModelToUser(createUseRequest);
         Long createdUserId = userService.create(user);
         return new IdModelResponse(createdUserId);
     }
@@ -77,8 +77,8 @@ public class UserController {
     public IdModelResponse update(@Parameter(description = "specify username.")
                                   @PathVariable("username") String username,
                                   @Parameter(description = "specify user update model; containing user first name and user last name.")
-                                  @RequestBody @Valid UpdateUserModel updateUserModel) {
-        Long id = userService.updateByUsername(username, updateUserModel);
+                                  @RequestBody @Valid UpdateUserRequest updateUserRequest) {
+        Long id = userService.updateByUsername(username, updateUserRequest);
         return new IdModelResponse(id);
     }
 
@@ -118,8 +118,8 @@ public class UserController {
             @Parameter(description = "specify username.")
             @PathVariable("username") String username,
             @Parameter(description = "specify password information.")
-            @RequestBody @Valid UpdatePasswordModel updatePasswordModel) {
-        userService.updatePassword(username, updatePasswordModel);
+            @RequestBody @Valid UpdatePasswordRequest updatePasswordRequest) {
+        userService.updatePassword(username, updatePasswordRequest);
     }
 
 }

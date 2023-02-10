@@ -15,54 +15,55 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderItemService {
 
-    private final OrderItemRepository orderItemRepository;
-
-    private final UserService userService;
-    private final ProductService productService;
+    private final OrderItemRepository repository;
     private final CartService cartService;
 
     @Transactional
-    public Long order(Long productId, Long userId) {
-        User user = userService.findById(userId);
+    public Long orderProduct(Product product, User user) {
         Cart cart = cartService.getUserCurrentCart(user);
-        Product product = productService.findById(productId);
+        OrderItem newOrderItem = new OrderItem();
 
-        if (product.getStock() < 1) {
-            throw new BusinessCodeException(ExceptionMessage.SOLED_OUT, ExceptionMessage.SOLED_OUT_MSG);
-        }
-
-        OrderItem currentOrderItem = orderItemRepository.findByProductAndCart(product, cart)
+        OrderItem currentOrderItem = repository.findByProductAndCart(product, cart)
                 .orElse(null);
         if (currentOrderItem != null) {
             currentOrderItem.setCount(currentOrderItem.getCount() + 1);
-            productService.reduceStockByOne(product);
-            return orderItemRepository.save(currentOrderItem).getId();
+            return repository.save(currentOrderItem).getId();
         }
-
-        OrderItem newOrderItem = new OrderItem();
+        newOrderItem.setCount(1);
         newOrderItem.setCart(cart);
         newOrderItem.setProduct(product);
-        productService.reduceStockByOne(product);
-        return orderItemRepository.save(newOrderItem).getId();
-    }
-
-    @Transactional
-    public void reduceOrderCountByOne(Long id) {
-        OrderItem orderItem = findById(id);
-        if (orderItem.getCount() == 1) {
-            orderItemRepository.delete(orderItem);
-        } else {
-            orderItem.setCount(orderItem.getCount() - 1);
-            orderItemRepository.save(orderItem);
-        }
-        productService.increaseStockByOne(orderItem.getProduct());
+        return repository.save(newOrderItem).getId();
     }
 
     public OrderItem findById(Long id) {
-        return orderItemRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new BusinessCodeException(ExceptionMessage.ORDER_ITEM_NOT_FOUND,
                         ExceptionMessage.ORDER_ITEM_NOT_FOUND_MSG));
     }
 
+    public OrderItem findByProductAndUser(Product product, User user) {
+        return repository.findActiveItemByProductAndUser(product, user)
+                .orElseThrow(() -> new BusinessCodeException(ExceptionMessage.ORDER_ITEM_NOT_FOUND,
+                        ExceptionMessage.ORDER_ITEM_NOT_FOUND_MSG));
+    }
+
+    @Transactional
+    public void reduceOrderCountByOne(Product product, User user) {
+        OrderItem orderItem = findByProductAndUser(product, user);
+        if (orderItem.getCount() == 1) {
+            repository.delete(orderItem);
+        } else {
+            orderItem.setCount(orderItem.getCount() - 1);
+            repository.save(orderItem);
+        }
+    }
+
+
+//    public static void main(String[] args) {
+//        Random random = new Random();
+//        for (int i = 0; i < 3; i++) {
+//            System.out.println(random.nextInt(1000));
+//        }
+//    }
 
 }
