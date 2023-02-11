@@ -27,7 +27,8 @@ public class OrderItemService {
                 .orElse(null);
         if (currentOrderItem != null) {
             currentOrderItem.setCount(currentOrderItem.getCount() + 1);
-            return repository.save(currentOrderItem).getId();
+            repository.save(currentOrderItem);
+            return currentOrderItem.getId();
         }
         newOrderItem.setCount(1);
         newOrderItem.setCart(cart);
@@ -57,13 +58,5 @@ public class OrderItemService {
             repository.save(orderItem);
         }
     }
-
-
-//    public static void main(String[] args) {
-//        Random random = new Random();
-//        for (int i = 0; i < 3; i++) {
-//            System.out.println(random.nextInt(1000));
-//        }
-//    }
 
 }

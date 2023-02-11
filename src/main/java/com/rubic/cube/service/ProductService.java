@@ -98,21 +98,22 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    // @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     @Transactional
     public Long order(Long productId, Long userId) {
-        Product product = findById(productId);
         User user = userService.findById(userId);
+        Product product = findById(productId);
+
+        System.out.println("\nuserId:" + userId);
 
         if (product.getStock() < 1) {
             throw new BusinessCodeException(ExceptionMessage.SOLED_OUT, ExceptionMessage.SOLED_OUT_MSG);
         }
 
-        synchronized (product) {
-            Long orderId = orderItemService.orderProduct(product, user);
-            product.setStock(product.getStock() - 1);
-            productRepository.save(product);
-            return orderId;
-        }
+        Long orderId = orderItemService.orderProduct(product, user);
+        product.setStock(product.getStock() - 1);
+        productRepository.save(product);
+        return orderId;
     }
 
     @Transactional
@@ -122,10 +123,8 @@ public class ProductService {
 
         orderItemService.reduceOrderCountByOne(product, user);
 
-        synchronized (product) {
-            product.setStock(product.getStock() + 1);
-            productRepository.save(product);
-        }
+        product.setStock(product.getStock() + 1);
+        productRepository.save(product);
     }
 
 }
