@@ -19,6 +19,7 @@ import static com.rubic.cube.exception.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductService {
     private final ProductRepository productRepository;
     private final OrderItemService orderItemService;

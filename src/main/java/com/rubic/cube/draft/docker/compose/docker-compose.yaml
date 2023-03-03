@@ -1,0 +1,99 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka-broker:
+    image: confluentinc/cp-kafka
+    container_name: broker
+    ports:
+        # To learn about configuring Kafka for access across networks see
+        # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - 9092:9092
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka-broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      KAFKA_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      KAFKA_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+
+  kafka-connect:
+    image: postgres-elasticsearch-connector
+    ports:
+      - 28082:28082
+      - 8083:8083
+    depends_on:
+      - kafka-broker
+      - postgres-db
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-broker:29092
+      CONNECT_GROUP_ID: 1
+      CONNECT_CONFIG_STORAGE_TOPIC: configstorage
+      CONNECT_OFFSET_STORAGE_TOPIC: offsetstorage
+      CONNECT_STATUS_STORAGE_TOPIC: statusstorage
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_PLUGINS_PATH: /usr/share/kafka-connect/lib
+      CONNECT_REST_ADVERTISED_HOST_NAME: localhost
+      CONNECT_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+
+  cube-app:
+    image: cube
+    ports:
+      - 8000:8000
+    working_dir: /home/app/cube
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/product_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres
+    ports:
+      - 5432:5432
+    command:
+      - "postgres"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "wal_level=logical"
+    volumes:
+      - cube-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+    environment:
+      xpack.security.enabled: false
+      xpack.security.http.ssl.enabled: false
+      xpack.security.transport.ssl.enabled: false
+      discovery.type: single-node
+
+volumes:
+  cube-data:

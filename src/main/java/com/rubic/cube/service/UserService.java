@@ -17,6 +17,7 @@ import java.util.Optional;
 import static com.rubic.cube.exception.ExceptionMessage.*;
 
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -91,6 +92,8 @@ public class UserService {
         } else {
             throw new BusinessCodeException(INCORRECT_PASSWORD, INCORRECT_PASSWORD_MSG);
         }
+
+        String s = "{ \"name\": \"product-connector\", \"config\": { \"connector.class\": \"io.debezium.connector.postgresql.PostgresConnector\", \"database.hostname\": \"postgres-db-1\", \"database.port\": \"5432\", \"database.user\": \"postgres\", \"database.password\": \"123\", \"database.dbname\": \"product_db\", \"database.server.name\": \"PostgreSQL15\", \"table.include.list\": \"public.product\", \"plugin.name\": \"pgoutput\", \"heartbeat.topics.prefix\": \"cube\", \"transforms\": \"unwrap\", \"transforms.unwrap.type\": \"io.debezium.transforms.ExtractNewRecordState\", \"transforms.unwrap.drop.tombstones\": false, \"transforms.unwrap.delete.handling.mode\": \"rewrite\" } }";
     }
 
 }
