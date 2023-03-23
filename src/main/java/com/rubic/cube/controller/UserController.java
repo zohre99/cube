@@ -38,7 +38,7 @@ public class UserController {
     })
     public IdModelResponse create(@Parameter(description = "User information.")
                                   @RequestBody @Valid CreateUseRequest createUseRequest) {
-        User user = userMapper.createUserModelToUser(createUseRequest);
+        User user = userMapper.toUser(createUseRequest);
         Long createdUserId = userService.create(user);
         return new IdModelResponse(createdUserId);
     }
@@ -92,7 +92,7 @@ public class UserController {
     public UserResponse findByUsername(@Parameter(description = "specify username.")
                                             @PathVariable String username) {
         User user = userService.findByUsername(username);
-        return userMapper.userToUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @GetMapping
@@ -103,7 +103,7 @@ public class UserController {
                                            @Parameter(description = "specify the size of each page.")
                                            @RequestParam("limit") int limit) {
         List<User> users = userService.findAll(page, limit);
-        return userMapper.usersToUserResponses(users);
+        return userMapper.toUserResponseList(users);
     }
 
     @PatchMapping("/{username}/password")

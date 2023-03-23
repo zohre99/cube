@@ -1,0 +1,1 @@
+psql -U postgres -c "ALTER SYSTEM SET log_statement = 'all'" -c "ALTER SYSTEM SET wal_level = 'logical'"

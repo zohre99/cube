@@ -1,7 +1,8 @@
 package com.rubic.cube.service;
 
-import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
+import com.rubic.cube.entity.OrderItem;
 import com.rubic.cube.entity.Product;
+import com.rubic.cube.entity.Stock;
 import com.rubic.cube.entity.User;
 import com.rubic.cube.exception.BusinessCodeException;
 import com.rubic.cube.exception.ExceptionMessage;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.rubic.cube.exception.ExceptionMessage.*;
@@ -24,6 +24,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final OrderItemService orderItemService;
     private final UserService userService;
+    private final StockService stockService;
 
     public Product findById(Long id) {
         return productRepository.findById(id)
@@ -46,21 +47,19 @@ public class ProductService {
         return productRepository.count();
     }
 
-    public List<ProductStockByColorResponse> findStockByCode(String code) {
-        return productRepository.findStockByCode(code);
-    }
-
-    public Long create(Product product) {
+    public Long create(Product product, Stock stock) {
         Optional<Product> optionalProduct = productRepository.findByCodeAndNameAndColor(product.getCode(),
                 product.getName(), product.getColor());
         if (optionalProduct.isPresent()) {
             throw new BusinessCodeException(PRODUCT_ALREADY_EXISTS, PRODUCT_ALREADY_EXISTS_MSG);
         }
+        stock.setProduct(product);
+        product.setStock(stock);
         return productRepository.save(product).getId();
     }
 
     @Transactional
-    public Long update(Product newProduct) {
+    public Long update(Product newProduct, Stock newStock) {
         Optional<Product> oldProduct = productRepository.findById(newProduct.getId());
         if (!oldProduct.isPresent()) {
             throw new BusinessCodeException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND_MSG);
@@ -82,8 +81,10 @@ public class ProductService {
         if (newProduct.getDescription() != null) {
             product.setDescription(newProduct.getDescription());
         }
-        if (newProduct.getStock() != null) {
-            product.setStock(newProduct.getStock());
+        if (newStock != null && newStock.getAvailableCount() != null) {
+            Stock stock = stockService.findByProduct(product);
+            stock.setAvailableCount(newStock.getAvailableCount());
+            product.setStock(stock);
         }
 
         productRepository.save(product);
@@ -102,30 +103,27 @@ public class ProductService {
     // @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     @Transactional
     public Long order(Long productId, Long userId) {
-        User user = userService.findById(userId);
-        Product product = findById(productId);
+        Stock stock = stockService.findByProductId(productId);
 
-        System.out.println("\nuserId:" + userId);
-
-        if (product.getStock() < 1) {
+        if (stock.getAvailableCount() < 1) {
             throw new BusinessCodeException(ExceptionMessage.SOLED_OUT, ExceptionMessage.SOLED_OUT_MSG);
         }
 
-        Long orderId = orderItemService.orderProduct(product, user);
-        product.setStock(product.getStock() - 1);
-        productRepository.save(product);
+        User user = userService.findById(userId);
+        Long orderId = orderItemService.order(stock, user);
+        stockService.reduceRemainedByOne(stock);
         return orderId;
     }
 
+
     @Transactional
     public void reduceOrderByOne(Long productId, Long userId) {
-        Product product = findById(productId);
+        Stock stock = stockService.findByProductId(productId);
         User user = userService.findById(userId);
+        OrderItem orderItem = orderItemService.findByProductAndUser(stock.getProduct(), user);
 
-        orderItemService.reduceOrderCountByOne(product, user);
-
-        product.setStock(product.getStock() + 1);
-        productRepository.save(product);
+        orderItemService.reduceOrderCountByOne(orderItem);
+        stockService.increaseRemainedByOne(stock);
     }
 
 }

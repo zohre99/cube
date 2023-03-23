@@ -3,25 +3,18 @@ package com.rubic.cube.controller.mapper;
 import com.rubic.cube.controller.model.request.CreateProductRequest;
 import com.rubic.cube.controller.model.request.UpdateProductRequest;
 import com.rubic.cube.controller.model.response.ProductResponse;
-import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
 import org.mapstruct.Mapper;
-
-import java.util.List;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-    ProductResponse productToProductResponse(Product product);
+    @Mapping(target = "availableCount", source = "stock.availableCount")
+    ProductResponse toProductResponse(Product product);
 
-    List<ProductResponse> productListToProductResponseList(List<Product> productList);
+    Product toProduct(CreateProductRequest createProductRequest);
 
-    Product createProductRequestToProduct(CreateProductRequest createProductRequest);
-
-    Product updateProductRequestToProduct(UpdateProductRequest updateProductRequest);
-
-    ProductStockByColorResponse productToProductStockByColorResponse(Product product);
-
-    List<ProductStockByColorResponse> productListToProductStockByColorResponseList(List<Product> product);
+    Product toProduct(UpdateProductRequest updateProductRequest);
 
 }

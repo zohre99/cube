@@ -68,7 +68,7 @@ services:
       - postgres-db
 
   postgres-db:
-    image: postgres
+    image: postgres:alpine3.17
     ports:
       - 5432:5432
     command:

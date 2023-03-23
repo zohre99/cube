@@ -33,4 +33,11 @@ public class ExceptionMessage {
     public static final String INVALID_CART_STATE_MSG = "INVALID CART STATE.";
 
 
+    public static final String STOCK_NOT_FOUND = "STK-S-001";
+    public static final String STOCK_NOT_FOUND_MSG = "STOCK NOT FOUND.";
+
+    public static final String STOCK_ALREADY_EXISTS = "STK-S-002";
+    public static final String STOCK_ALREADY_EXISTS_MSG = "STOCK ALREADY EXISTS.";
+
+
 }

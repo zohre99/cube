@@ -34,8 +34,8 @@ public class CartController {
     })
     public CartResponse getUserCurrentCart(@RequestParam Long userId) {
         User user = userService.findById(userId);
-        Cart cart = cartService.getUserCurrentCart(user);
-        return cartMapper.cartToCartResponse(cart);
+        Cart cart = cartService.findUserCurrentCart(user);
+        return cartMapper.toCartResponse(cart);
     }
 
     @PatchMapping("/{cartId}/submit")

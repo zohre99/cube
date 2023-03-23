@@ -28,6 +28,6 @@ public class CreateProductRequest {
 
     @Schema(description = "Product stock", example = "100")
     @NotNull(message = "product stock cannot be null")
-    private Integer stock;
+    private Integer availableCount;
 
 }

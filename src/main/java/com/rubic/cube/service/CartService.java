@@ -18,7 +18,7 @@ public class CartService {
 
     private final CartRepository cartRepository;
 
-    public Cart getUserCurrentCart(User user) {
+    public Cart findUserCurrentCart(User user) {
         Cart existingCart = cartRepository.findByUserAndStatus(user, CartStatus.PROGRESSING)
                 .orElse(null);
         if (existingCart != null) return existingCart;

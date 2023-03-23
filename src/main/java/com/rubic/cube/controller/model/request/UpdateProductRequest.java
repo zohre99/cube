@@ -24,6 +24,6 @@ public class UpdateProductRequest {
     private String description;
 
     @Schema(description = "Product stock", example = "100")
-    private String stock;
+    private Integer availableCount;
 
 }

@@ -24,5 +24,5 @@ public class ProductResponse {
     private String description;
 
     @Schema(description = "Product stock", example = "100")
-    private Integer stock;
+    private Integer availableCount;
 }

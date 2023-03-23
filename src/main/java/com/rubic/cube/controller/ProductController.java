@@ -1,13 +1,14 @@
 package com.rubic.cube.controller;
 
 import com.rubic.cube.controller.mapper.ProductMapper;
+import com.rubic.cube.controller.mapper.StockMapper;
 import com.rubic.cube.controller.model.request.CreateProductRequest;
 import com.rubic.cube.controller.model.request.UpdateProductRequest;
 import com.rubic.cube.controller.model.response.CountModelResponse;
 import com.rubic.cube.controller.model.response.IdModelResponse;
 import com.rubic.cube.controller.model.response.ProductResponse;
-import com.rubic.cube.controller.model.response.ProductStockByColorResponse;
 import com.rubic.cube.entity.Product;
+import com.rubic.cube.entity.Stock;
 import com.rubic.cube.exception.ExceptionMessage;
 import com.rubic.cube.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(ProductController.PRODUCT_CONTROLLER_ADDRESS)
 @RequiredArgsConstructor
@@ -28,10 +27,10 @@ import java.util.List;
 public class ProductController {
 
     public static final String PRODUCT_CONTROLLER_ADDRESS = "/products";
-    public static final String STOCK_URL = "/stock";
     public static final String ORDER_ADDRESS = "/order";
     private final ProductService productService;
     private final ProductMapper productMapper;
+    private final StockMapper stockMapper;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -42,7 +41,7 @@ public class ProductController {
     })
     public ProductResponse findById(@PathVariable("id") Long id) {
         Product product = productService.findById(id);
-        return productMapper.productToProductResponse(product);
+        return productMapper.toProductResponse(product);
     }
 
     @GetMapping("/by-code/{code}")
@@ -55,7 +54,7 @@ public class ProductController {
                                                @RequestParam("page") int page,
                                                @RequestParam("size") int size) {
         return productService.findAllByCode(code, page, size)
-                .map(productMapper::productToProductResponse);
+                .map(productMapper::toProductResponse);
     }
 
     @GetMapping("/by-code/{code}/count")
@@ -77,7 +76,7 @@ public class ProductController {
     public Page<ProductResponse> findAll(@RequestParam("page") int page,
                                          @RequestParam("size") int size) {
         return productService.findAll(page, size)
-                .map(productMapper::productToProductResponse);
+                .map(productMapper::toProductResponse);
     }
 
     @GetMapping("/count")
@@ -90,16 +89,6 @@ public class ProductController {
         return new CountModelResponse(productService.countAll());
     }
 
-    @GetMapping(STOCK_URL + "/{code}")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "GET", description = "It finds product stock; filter by product code and group by product color.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK")
-    })
-    public List<ProductStockByColorResponse> findProductStock(@PathVariable("code") String code) {
-        return productService.findStockByCode(code);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create", description = "It creates a new product with given info.")
@@ -108,8 +97,9 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = ExceptionMessage.PRODUCT_ALREADY_EXISTS_MSG)
     })
     public IdModelResponse create(@RequestBody @Validated CreateProductRequest createProductRequest) {
-        Product product = productMapper.createProductRequestToProduct(createProductRequest);
-        Long id = productService.create(product);
+        Product product = productMapper.toProduct(createProductRequest);
+        Stock stock = stockMapper.toStock(createProductRequest);
+        Long id = productService.create(product, stock);
         return new IdModelResponse(id);
     }
 
@@ -121,8 +111,9 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = ExceptionMessage.PRODUCT_NOT_FOUND_MSG)
     })
     public IdModelResponse update(@RequestBody @Validated UpdateProductRequest updateProductRequest) {
-        Product newProduct = productMapper.updateProductRequestToProduct(updateProductRequest);
-        Long id = productService.update(newProduct);
+        Product newProduct = productMapper.toProduct(updateProductRequest);
+        Stock newStock = stockMapper.toStock(updateProductRequest);
+        Long id = productService.update(newProduct, newStock);
         return new IdModelResponse(id);
     }
 

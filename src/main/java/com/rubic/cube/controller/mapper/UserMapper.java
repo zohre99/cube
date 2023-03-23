@@ -10,10 +10,10 @@ import java.util.List;
 @Mapper(componentModel = "spring", imports = {java.util.Date.class})
 public interface UserMapper {
 
-    User createUserModelToUser(CreateUseRequest createUseRequest);
+    User toUser(CreateUseRequest createUseRequest);
 
-    UserResponse userToUserResponse(User user);
+    UserResponse toUserResponse(User user);
 
-    List<UserResponse> usersToUserResponses(List<User> users);
+    List<UserResponse> toUserResponseList(List<User> users);
 
 }

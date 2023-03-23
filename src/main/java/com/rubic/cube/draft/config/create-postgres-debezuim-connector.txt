@@ -1,0 +1,23 @@
+curl --location --request POST 'http://127.0.0.1:5652/connectors' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "product-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "schema.include.list": "public",
+    "column.include.list": "public.product.id,public.product.code,public.product.color,public.product.description,public.product.name,public.product.stock,public.product.created_date,public.product.last_modified_date",
+    "database.hostname": "postgres-service",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "123",
+    "database.dbname": "product_db",
+    "table.include.list": "public.product",
+    "plugin.name": "pgoutput",
+    "topic.prefix": "PostgreSQL15",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": false,
+    "transforms.unwrap.delete.handling.mode": "rewrite"
+  }
+}'

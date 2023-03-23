@@ -1,9 +1,6 @@
 package com.rubic.cube.service;
 
-import com.rubic.cube.entity.Cart;
-import com.rubic.cube.entity.OrderItem;
-import com.rubic.cube.entity.Product;
-import com.rubic.cube.entity.User;
+import com.rubic.cube.entity.*;
 import com.rubic.cube.exception.BusinessCodeException;
 import com.rubic.cube.exception.ExceptionMessage;
 import com.rubic.cube.repository.OrderItemRepository;
@@ -20,11 +17,11 @@ public class OrderItemService {
     private final CartService cartService;
 
     @Transactional
-    public Long orderProduct(Product product, User user) {
-        Cart cart = cartService.getUserCurrentCart(user);
+    public Long order(Stock stock, User user) {
+        Cart cart = cartService.findUserCurrentCart(user);
         OrderItem newOrderItem = new OrderItem();
 
-        OrderItem currentOrderItem = repository.findByProductAndCart(product, cart)
+        OrderItem currentOrderItem = repository.findByProductAndCart(stock.getProduct(), cart)
                 .orElse(null);
         if (currentOrderItem != null) {
             currentOrderItem.setCount(currentOrderItem.getCount() + 1);
@@ -33,7 +30,7 @@ public class OrderItemService {
         }
         newOrderItem.setCount(1);
         newOrderItem.setCart(cart);
-        newOrderItem.setProduct(product);
+        newOrderItem.setProduct(stock.getProduct());
         return repository.save(newOrderItem).getId();
     }
 
@@ -50,8 +47,7 @@ public class OrderItemService {
     }
 
     @Transactional
-    public void reduceOrderCountByOne(Product product, User user) {
-        OrderItem orderItem = findByProductAndUser(product, user);
+    public void reduceOrderCountByOne(OrderItem orderItem) {
         if (orderItem.getCount() == 1) {
             repository.delete(orderItem);
         } else {
