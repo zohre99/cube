@@ -8,9 +8,11 @@ pipeline {
             }
         }
 
-        stage('test') {
+        stage('maven install') {
             steps {
-                echo 'Testing...'
+                withMaven {
+                    sh 'mvn clean package install'
+                }
             }
         }
 
