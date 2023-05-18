@@ -1,8 +1,8 @@
 package com.rubic.cube.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -15,11 +15,11 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity implements Serializable {
 
     @Column(name = "CREATED_DATE", updatable = false)
-    @CreationTimestamp
+    @CreatedDate
     private LocalDateTime createdDate;
 
     @Column(name = "LAST_MODIFIED_DATE")
-    @UpdateTimestamp
+    @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
 }

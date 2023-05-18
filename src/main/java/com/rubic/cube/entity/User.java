@@ -1,12 +1,14 @@
 package com.rubic.cube.entity;
 
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "USER")
 @Data
+@Audited
 public class User extends BaseEntity {
 
     @Id
